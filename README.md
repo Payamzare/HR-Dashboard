@@ -1,5 +1,6 @@
 # HR-dashbord
 # HR-Dashboard-MySQL-PowerBI
+![image](https://github.com/Payamzare/HR-dashbord/assets/86339333/65ff256c-415d-4895-8f40-81b05628a75f)
 
 ## Data Used
 
