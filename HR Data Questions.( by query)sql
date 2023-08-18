@@ -1,0 +1,114 @@
+-- QUESTIONS
+
+-- 1. What is the gender breakdown of employees in the company?
+
+select gender,count(*) as count from `human resources`
+where  age_emoliy>18 and termdate='00:00:00'
+group by gender;
+
+-- 2. What is the race/ethnicity breakdown of employees in the company?
+
+SELECT race ,COUNT( *) AS COUNT
+FROM `human resources`
+WHERE age_emoliy>18 AND termdate='00:00:00'
+GROUP BY race
+ORDER BY COUNT desc;
+-- 3. What is the age distribution of employees in the company?
+SELECT  MIN(age_emoliy) AS YOUNGEST  , MAX(age_emoliy) AS OLDEST
+FROM `human resources`
+WHERE age_emoliy >18 AND termdate ='00:00:00';
+
+SELECT CASE
+WHEN age_emoliy >=18 AND age_emoliy<=24 THEN '18-24'
+WHEN age_emoliy >=25 AND age_emoliy<=34 THEN '25-34'
+WHEN age_emoliy >=35 AND age_emoliy<=44 THEN '35-44'
+WHEN age_emoliy >=45 AND age_emoliy<=54 THEN '45-54'
+WHEN age_emoliy >=55 AND age_emoliy<=64 THEN '55-64'
+ELSE '65+'
+END AS age_group,
+    count(*) as count
+from `human resources`
+WHERE age_emoliy>18 AND termdate='00:00:00'
+group by age_group
+order by age_group;
+
+
+SELECT CASE
+WHEN age_emoliy >=18 AND age_emoliy<=24 THEN '18-24'
+WHEN age_emoliy >=25 AND age_emoliy<=34 THEN '25-34'
+WHEN age_emoliy >=35 AND age_emoliy<=44 THEN '35-44'
+WHEN age_emoliy >=45 AND age_emoliy<=54 THEN '45-54'
+WHEN age_emoliy >=55 AND age_emoliy<=64 THEN '55-64'
+ELSE '65+'
+END AS age_group,gender,
+    count(*) as count
+from `human resources`
+WHERE age_emoliy>18 AND termdate='00:00:00'
+group by age_group,gender
+order by age_group,gender;
+
+
+-- 4. How many employees work at headquarters versus remote locations?
+select location,count(*) as count
+from `human resources`
+WHERE age_emoliy>=18 AND termdate='00:00:00'
+group by location;
+
+
+-- 5. What is the average length of employment for employees who have been terminated?
+
+select  round(avg(  datediff(termdate,hire_date))/365,0) as average_length_of_employment
+from `human resources`
+where termdate <> '00:00:00' and age_emoliy>=18 and termdate <= curdate();
+
+-- 6. How does the gender distribution vary across departments and job titles?
+
+select department,jobtitle ,gender,count(*)
+from `human resources`
+WHERE age_emoliy >18 AND termdate ='00:00:00'
+group by department,jobtitle
+order by department,jobtitle;
+-- 7. What is the distribution of job titles across the company?
+select jobtitle,count(*) as count
+from `human resources`
+WHERE age_emoliy >18 AND termdate ='00:00:00'
+group by jobtitle
+order by jobtitle desc;
+
+-- 8. Which department has the highest turnover rate?
+SELECT department,
+       TOTAL_COUNT,TERMINATED_COUNT,TERMINATED_COUNT/ TOTAL_COUNT AS TTERMINATED_RATE
+FROM (SELECT department,
+             COUNT(*) AS TOTAL_COUNT,
+             SUM(CASE
+                     WHEN termdate <> '00:00:00' and termdate <= curdate()
+                         then 1
+                     else 0 end) as TERMINATED_COUNT
+      from `human resources`
+      where age_emoliy>=18
+      group by department) as subquery
+order by TTERMINATED_RATE desc;
+
+-- 9. What is the distribution of employees across locations by city and state?
+select location_state ,count(*) as count
+from `human resources`
+WHERE age_emoliy>=18 AND termdate='00:00:00'
+group by  location_state
+order by count(*) desc;
+
+
+-- 10. How has the company's employee count changed over time based on hire and term dates?
+select  year,hiers,terminations, hiers - terminations as net_change ,round((hiers - terminations)/hiers*100,2) as net_change_prtcent
+from (select  year(hire_date) as year ,count(*) as hiers,sum(case  when  termdate<>'00:00:00' and termdate<=curdate() then 1 else 0 end) as terminations
+from `human resources`
+where age_emoliy>=18
+group by  year(hire_date)
+     ) as subqury
+order by  year;
+
+-- 11. What is the tenure distribution for each department?
+select department,round(avg(datediff(termdate,hire_date)/365),0) as avg_tenure
+from `human resources`
+where termdate<> '00:00:00' and  age_emoliy >=18 and termdate<=curdate()
+group by department
+;
